@@ -9,6 +9,7 @@ interface LoginPageProps {
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -107,12 +108,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                     className="form-input flex w-full min-w-0 flex-1 rounded-lg text-white focus:outline-0 focus:ring-1 focus:ring-primary border border-zinc-700/50 bg-zinc-800/40 focus:border-primary h-12 placeholder:text-zinc-500/50 pl-[15px] pr-[45px] text-base font-normal transition-all" 
                     placeholder="请输入您的密码" 
                     required 
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <div className="absolute right-[15px] top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-primary transition-all cursor-pointer hover:text-white">
-                    <span className="material-symbols-outlined text-xl">visibility</span>
+                  <div 
+                    className="absolute right-[15px] top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-primary transition-all cursor-pointer hover:text-white"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {showPassword ? 'visibility_off' : 'visibility'}
+                    </span>
                   </div>
                 </div>
               </label>

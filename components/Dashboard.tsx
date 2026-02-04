@@ -4,6 +4,7 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import DriverTable from './DriverTable';
 import BulkImportModal from './BulkImportModal';
+import EditDriverModal from './EditDriverModal';
 import { Driver, Tournament, Round, DBRanking, TableColumn } from '../types';
 import { supabase } from '../lib/supabase';
 
@@ -31,7 +32,38 @@ const safetyColumns: TableColumn[] = [
 
 const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
+  const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [selectedRoundId, setSelectedRoundId] = useState<string | null>(null);
+  const [logs, setLogs] = useState<{action: string, time: string, details: string}[]>([]);
+
+  // Load logs on mount
+  useEffect(() => {
+    const savedLogs = localStorage.getItem('moza_op_logs');
+    if (savedLogs) {
+        try {
+            setLogs(JSON.parse(savedLogs));
+        } catch (e) {
+            console.error('Failed to parse logs', e);
+        }
+    } else {
+        // Init log
+        addLog('系统初始化', '系统已成功加载，准备就绪。');
+    }
+  }, []);
+
+  const addLog = (action: string, details: string) => {
+      const newLog = {
+          action,
+          details,
+          time: new Date().toLocaleString()
+      };
+      setLogs(prev => {
+          const updated = [newLog, ...prev].slice(0, 50); // Keep last 50 logs
+          localStorage.setItem('moza_op_logs', JSON.stringify(updated));
+          return updated;
+      });
+  };
   
   // Manage Tournaments and Rounds State
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -197,6 +229,27 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   }, [currentTournament, dynamicColumns]);
 
   // CRUD Handlers
+  const handleUpdateDriver = async (updatedDriver: Driver) => {
+    try {
+        const { error } = await supabase
+            .from('rankings')
+            .update({
+                rank: updatedDriver.rank,
+                points: updatedDriver.points,
+                display_races: JSON.stringify(updatedDriver.rawData)
+            })
+            .eq('id', updatedDriver.id);
+
+        if (error) throw error;
+
+        addLog('更新车手', `更新了车手 [${updatedDriver.name}] 的数据`);
+        setRefreshKey(prev => prev + 1);
+    } catch (err: any) {
+        console.error('Update failed:', err);
+        alert('更新失败: ' + err.message);
+    }
+  };
+
   const handleAddTournament = async () => {
     const name = prompt('请输入赛事名称:');
     if (name) {
@@ -209,6 +262,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       if (error) {
         alert('创建赛事失败: ' + error.message);
       } else {
+        addLog('新建赛事', `创建了新赛事: ${name}`);
         fetchTournaments();
       }
     }
@@ -225,6 +279,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       if (error) {
         alert('更新赛事失败: ' + error.message);
       } else {
+        addLog('重命名赛事', `将赛事重命名为: ${name}`);
         fetchTournaments();
       }
     }
@@ -240,6 +295,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       if (error) {
         alert('删除赛事失败: ' + error.message);
       } else {
+        addLog('删除赛事', `删除了赛事ID: ${id}`);
         if (currentTournament?.id === id) {
           setSelectedRoundId(null); // Deselect if current
         }
@@ -268,6 +324,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       if (error) {
         alert('创建赛程失败: ' + error.message);
       } else {
+        addLog('新建赛程', `在赛事 [${tournament?.name}] 中创建了新赛程: ${name}`);
         fetchTournaments();
       }
     }
@@ -284,6 +341,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       if (error) {
         alert('更新赛程失败: ' + error.message);
       } else {
+        addLog('重命名赛程', `将赛程重命名为: ${name}`);
         fetchTournaments();
       }
     }
@@ -299,6 +357,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       if (error) {
         alert('删除赛程失败: ' + error.message);
       } else {
+        addLog('删除赛程', `删除了赛程ID: ${id}`);
         if (selectedRoundId === id) {
           setSelectedRoundId(null);
         }
@@ -320,6 +379,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           
           // Refresh
           setRefreshKey(prev => prev + 1);
+          addLog('清空数据', `清空了赛程 [${currentRound?.name}] 的所有排名数据`);
           alert('数据已清除');
       } catch (err: any) {
           console.error('Error clearing data:', err);
@@ -340,7 +400,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         onSelectRound={setSelectedRoundId}
       />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header onLogout={onLogout} />
+        <Header onLogout={onLogout} onShowLogs={() => setIsLogsModalOpen(true)} />
         <main className="flex-1 overflow-auto p-8">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex justify-between items-end">
@@ -364,20 +424,64 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                 columns={dynamicColumns || defaultColumns} 
                 onOpenImport={() => setIsImportModalOpen(true)}
                 onClearData={handleClearData}
+                onEditDriver={setEditingDriver}
             />
           </div>
         </main>
       </div>
 
+      {editingDriver && (
+        <EditDriverModal 
+            driver={editingDriver}
+            onClose={() => setEditingDriver(null)}
+            onSave={handleUpdateDriver}
+        />
+      )}
+
       {isImportModalOpen && (
         <BulkImportModal 
           onClose={() => setIsImportModalOpen(false)} 
           roundId={selectedRoundId || undefined}
+          tournamentName={currentTournament?.name}
           onImportSuccess={() => {
             setIsImportModalOpen(false);
             setRefreshKey(prev => prev + 1);
+            addLog('导入数据', `在赛程 [${currentRound?.name}] 中导入了新数据`);
           }}
         />
+      )}
+
+      {isLogsModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="flex items-center justify-between border-b border-zinc-200 p-6 bg-white">
+              <h2 className="text-zinc-900 text-xl font-bold">系统操作日志</h2>
+              <button onClick={() => setIsLogsModalOpen(false)} className="text-zinc-400 hover:text-zinc-900 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+                <div className="space-y-4">
+                    {logs.length === 0 ? (
+                        <div className="text-center text-zinc-400 text-sm py-8">
+                            暂无更多操作记录
+                        </div>
+                    ) : (
+                        logs.map((log, index) => (
+                            <div key={index} className="flex items-start gap-4 p-4 bg-zinc-50 rounded-lg border border-zinc-100">
+                                <span className="material-symbols-outlined text-zinc-400 mt-0.5">info</span>
+                                <div>
+                                    <p className="text-sm font-bold text-zinc-900">{log.action}</p>
+                                    <p className="text-xs text-zinc-500 mt-1">{log.time}</p>
+                                    <p className="text-sm text-zinc-600 mt-2">{log.details}</p>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

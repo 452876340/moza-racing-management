@@ -6,9 +6,10 @@ interface DriverTableProps {
   columns: TableColumn[];
   onOpenImport: () => void;
   onClearData?: () => void;
+  onEditDriver?: (driver: Driver) => void;
 }
 
-const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImport, onClearData }) => {
+const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImport, onClearData, onEditDriver }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -245,8 +246,12 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
                   </td>
                 ))}
                 <td className="px-6 py-4 text-right">
-                  <button className="p-1.5 text-zinc-400 hover:text-brand-blue transition-colors">
-                    <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                  <button 
+                    className="p-1.5 text-zinc-400 hover:text-brand-blue transition-colors"
+                    onClick={() => onEditDriver && onEditDriver(driver)}
+                    title="修改信息"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
                   </button>
                 </td>
               </tr>

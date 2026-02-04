@@ -6,6 +6,7 @@ import { DBRanking } from '../types';
 interface BulkImportModalProps {
   onClose: () => void;
   roundId?: string;
+  tournamentName?: string;
   onImportSuccess?: () => void;
 }
 
@@ -16,12 +17,26 @@ const ESSENTIAL_MAP: Record<string, keyof DBRanking> = {
   '积分': 'points', 'Points': 'points', 'POINTS': 'points'
 };
 
-const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, onImportSuccess }) => {
+const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, tournamentName, onImportSuccess }) => {
   const [step, setStep] = useState<'upload' | 'preview' | 'uploading' | 'success'>('upload');
   const [parsedRows, setParsedRows] = useState<any[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getTemplateUrl = () => {
+    let fileName = '月度锦标赛.xlsx';
+    if (tournamentName) {
+         if (tournamentName.includes('株洲')) fileName = '株洲速度节.xlsx';
+         else if (tournamentName.includes('飞驰')) fileName = '飞驰拉力赛.xlsx';
+         else if (tournamentName.toLowerCase().includes('iracing')) fileName = 'iRacing League.xlsx';
+         else if (tournamentName.includes('月度')) fileName = '月度锦标赛.xlsx';
+    }
+    return {
+        name: fileName,
+        url: `/templates/${fileName}`
+    };
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -189,7 +204,7 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, onI
         <div className="flex items-center justify-between border-b border-zinc-200 p-6 bg-white">
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-primary text-3xl font-fill-1">upload_file</span>
-            <h2 className="text-zinc-900 tracking-tight text-2xl font-bold leading-tight">批量导入 (动态表头)</h2>
+            <h2 className="text-zinc-900 tracking-tight text-2xl font-bold leading-tight">批量导入</h2>
           </div>
           <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 transition-colors">
             <span className="material-symbols-outlined">close</span>
@@ -206,25 +221,44 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, onI
           )}
 
           {step === 'upload' && (
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-zinc-200 bg-white/50 px-6 py-12 hover:border-primary hover:bg-white transition-all cursor-pointer group"
-            >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
-                onChange={handleFileChange}
-                accept=".csv,.xls,.xlsx"
-              />
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <span className="material-symbols-outlined text-primary text-4xl">cloud_upload</span>
+            <>
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-zinc-200 bg-white/50 px-6 py-12 hover:border-primary hover:bg-white transition-all cursor-pointer group"
+              >
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  onChange={handleFileChange}
+                  accept=".csv,.xls,.xlsx"
+                />
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <span className="material-symbols-outlined text-primary text-4xl">cloud_upload</span>
+                </div>
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <p className="text-zinc-900 text-lg font-bold">点击上传 Excel 文件</p>
+                  <p className="text-zinc-500 text-sm">系统将自动识别所有表头并生成对应列</p>
+                </div>
               </div>
-              <div className="flex flex-col items-center gap-1 text-center">
-                <p className="text-zinc-900 text-lg font-bold">点击上传 Excel 文件</p>
-                <p className="text-zinc-500 text-sm">系统将自动识别所有表头并生成对应列</p>
+
+              <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 flex items-center justify-between mt-4">
+                  <div>
+                      <h4 className="text-zinc-900 font-bold text-sm">下载导入模板</h4>
+                      <p className="text-zinc-500 text-xs mt-1">
+                          推荐使用对应赛事的标准模板以确保数据准确
+                      </p>
+                  </div>
+                  <a 
+                      href={getTemplateUrl().url} 
+                      download={getTemplateUrl().name}
+                      className="flex items-center gap-2 px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors shadow-sm"
+                  >
+                      <span className="material-symbols-outlined text-[18px]">download</span>
+                      下载模板 ({getTemplateUrl().name})
+                  </a>
               </div>
-            </div>
+            </>
           )}
 
           {step === 'preview' && (

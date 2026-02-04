@@ -3,9 +3,10 @@ import React from 'react';
 
 interface HeaderProps {
   onLogout: () => void;
+  onShowLogs: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ onLogout, onShowLogs }) => {
   return (
     <header className="flex items-center justify-between whitespace-nowrap border-b border-zinc-200 bg-white px-8 py-4 sticky top-0 z-50">
       <div className="flex items-center gap-8">
@@ -15,7 +16,11 @@ const Header: React.FC<HeaderProps> = ({ onLogout }) => {
       </div>
       <div className="flex items-center gap-6">
         <div className="flex gap-2">
-          <button className="flex items-center justify-center gap-2 rounded-lg px-3 h-10 bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition-colors" title="操作日志">
+          <button 
+            className="flex items-center justify-center gap-2 rounded-lg px-3 h-10 bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition-colors" 
+            title="操作日志"
+            onClick={onShowLogs}
+          >
             <span className="material-symbols-outlined text-[20px]">receipt_long</span>
             <span className="text-xs font-bold">操作日志</span>
           </button>
