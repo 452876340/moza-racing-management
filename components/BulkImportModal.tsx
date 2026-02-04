@@ -26,15 +26,29 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, tou
 
   const getTemplateUrl = () => {
     let fileName = '月度锦标赛.xlsx';
+    let url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYopLnW_gI.xlsx?f=%E6%9C%88%E5%BA%A6%E9%94%A6%E6%A0%87%E8%B5%9B.xlsx&v=1770198967';
+
     if (tournamentName) {
-         if (tournamentName.includes('株洲')) fileName = '株洲速度节.xlsx';
-         else if (tournamentName.includes('飞驰')) fileName = '飞驰拉力赛.xlsx';
-         else if (tournamentName.toLowerCase().includes('iracing')) fileName = 'iRacing League.xlsx';
-         else if (tournamentName.includes('月度')) fileName = '月度锦标赛.xlsx';
+         if (tournamentName.includes('株洲')) {
+             fileName = '株洲速度节.xlsx';
+             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYo3MSp6gM.xlsx?f=%E6%A0%AA%E6%B4%B2%E9%80%9F%E5%BA%A6%E8%8A%82.xlsx&v=1770198967';
+         }
+         else if (tournamentName.includes('飞驰')) {
+             fileName = '飞驰拉力赛.xlsx';
+             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgtq_MzAYokI_lkwQ.xlsx?f=%E9%A3%9E%E9%A9%B0%E6%8B%89%E5%8A%9B%E8%B5%9B.xlsx&v=1770198967';
+         }
+         else if (tournamentName.toLowerCase().includes('iracing')) {
+             fileName = 'iRacing League.xlsx';
+             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYo3-z1ggI.xlsx?f=iRacing+League.xlsx&v=1770198967';
+         }
+         else if (tournamentName.includes('月度')) {
+             fileName = '月度锦标赛.xlsx';
+             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYopLnW_gI.xlsx?f=%E6%9C%88%E5%BA%A6%E9%94%A6%E6%A0%87%E8%B5%9B.xlsx&v=1770198967';
+         }
     }
     return {
         name: fileName,
-        url: `/templates/${fileName}`
+        url: url
     };
   };
 
