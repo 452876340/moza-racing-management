@@ -33,6 +33,34 @@
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+
+        /* Dark mode scrollbar */
+        .dark ::-webkit-scrollbar-thumb {
+            background: #3f3f46; /* zinc-700 */
+        }
+        
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #52525b; /* zinc-600 */
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-900">

@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useUI } from '../context/UIContext';
 
 interface LoginPageProps {
   onLogin: () => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+  const { showToast } = useUI();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +43,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           password,
         });
         if (error) throw error;
-        alert('注册成功！请直接登录。');
+        showToast('注册成功！请直接登录。', 'success');
         setMode('login');
       }
     } catch (err: any) {

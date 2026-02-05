@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Driver, TableColumn } from '../types';
+import { useUI } from '../context/UIContext';
 
 interface DriverTableProps {
   drivers: Driver[];
@@ -10,6 +11,7 @@ interface DriverTableProps {
 }
 
 const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImport, onClearData, onEditDriver }) => {
+  const { showConfirm, showToast } = useUI();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -70,17 +72,23 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
   const paginatedDrivers = sortedDrivers.slice(startIndex, startIndex + itemsPerPage);
 
   const handleClearData = async () => {
-      if (confirm('确定要清除当前列表的所有数据吗？此操作不可撤销。')) {
-          if (onClearData) {
-              onClearData();
-          }
+    showConfirm({
+      title: '清除数据',
+      message: '确定要清除当前列表的所有数据吗？此操作不可撤销。',
+      confirmText: '清除',
+      isDestructive: true,
+      onConfirm: () => {
+        if (onClearData) {
+          onClearData();
+        }
       }
+    });
   };
 
   const handleExport = () => {
       // Export filteredDrivers to CSV
       if (filteredDrivers.length === 0) {
-          alert('没有数据可导出');
+          showToast('没有数据可导出', 'info');
           return;
       }
 
@@ -113,17 +121,18 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      showToast('报表导出成功', 'success');
   };
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col">
-      <div className="flex justify-between items-center gap-2 px-6 py-4 border-b border-zinc-100">
+    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden flex flex-col transition-colors duration-200">
+      <div className="flex justify-between items-center gap-2 px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
         <div className="flex items-center gap-4">
            <div className="flex items-center gap-2">
-             <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">筛选:</span>
-             <div className="flex items-center bg-zinc-50 rounded-md border border-zinc-200 p-0.5">
+             <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">筛选:</span>
+             <div className="flex items-center bg-zinc-50 dark:bg-zinc-800 rounded-md border border-zinc-200 dark:border-zinc-700 p-0.5">
                <select 
-                 className="text-xs border-none bg-transparent py-0.5 pl-2 pr-6 text-zinc-700 focus:ring-0 cursor-pointer"
+                 className="text-xs border-none bg-transparent py-0.5 pl-2 pr-6 text-zinc-700 dark:text-zinc-300 focus:ring-0 cursor-pointer"
                  onChange={(e) => {
                     const key = e.target.value;
                     if (key) {
@@ -142,11 +151,11 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
                </select>
                <button 
                  onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-                 className={`p-1 rounded hover:bg-zinc-200 transition-colors ${!sortKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+                 className={`p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors ${!sortKey ? 'opacity-50 cursor-not-allowed' : ''}`}
                  disabled={!sortKey}
                  title={sortDirection === 'asc' ? '升序' : '降序'}
                >
-                 <span className="material-symbols-outlined text-[16px] text-zinc-500">
+                 <span className="material-symbols-outlined text-[16px] text-zinc-500 dark:text-zinc-400">
                     {sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward'}
                  </span>
                </button>
@@ -163,7 +172,7 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
                   setSearchQuery(e.target.value);
                   setCurrentPage(1); // Reset to first page on search
               }}
-              className="pl-8 pr-4 py-1.5 border border-zinc-200 rounded-lg text-xs focus:ring-1 focus:ring-brand-blue focus:border-brand-blue w-48 transition-all"
+              className="pl-8 pr-4 py-1.5 border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white rounded-lg text-xs focus:ring-1 focus:ring-brand-blue focus:border-brand-blue w-48 transition-all"
             />
             <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">search</span>
           </div>
@@ -188,7 +197,7 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
       
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
-          <thead className="bg-zinc-50 border-b border-zinc-100 sticky top-0 z-10">
+          <thead className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-700 sticky top-0 z-10">
             <tr>
               {columns.map((col) => (
                 <th 
@@ -201,13 +210,13 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
               <th className="px-6 py-4 text-[11px] font-black text-zinc-400 uppercase tracking-widest text-right">操作</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
+          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
             {paginatedDrivers.map((driver) => (
-              <tr key={driver.id} className="hover:bg-zinc-50/50 transition-colors group">
+              <tr key={driver.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors group">
                 {columns.map((col) => (
                   <td 
                     key={`${driver.id}-${col.key}`} 
-                    className={`px-6 py-4 ${col.align === 'right' ? 'text-right' : 'text-left'}`}
+                    className={`px-6 py-4 text-zinc-700 dark:text-zinc-300 ${col.align === 'right' ? 'text-right' : 'text-left'}`}
                   >
                     {col.render ? col.render(driver[col.key] as any, driver) : (
                        // Default rendering logic based on known keys if no custom render
@@ -220,12 +229,12 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
                        ) :
                        col.key === 'name' ? (
                           <div className="flex flex-col">
-                            <span className="font-bold text-sm text-zinc-900 leading-none mb-0.5">{driver.name}</span>
+                            <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100 leading-none mb-0.5">{driver.name}</span>
                             <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-tighter">Verified Racer</span>
                           </div>
                        ) :
                        col.key === 'car' ? (
-                          <span className="px-2 py-1 bg-zinc-100 rounded text-[10px] font-black text-zinc-600 uppercase">
+                          <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px] font-black text-zinc-600 dark:text-zinc-400 uppercase">
                             {driver.car}
                           </span>
                        ) :
@@ -236,11 +245,11 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
                        ) :
                        col.key === 'points' ? (
                           <div className="flex items-center gap-1.5">
-                            <span className="font-black text-sm text-zinc-900">{driver.points}</span>
+                            <span className="font-black text-sm text-zinc-900 dark:text-zinc-100">{driver.points}</span>
                             <span className="text-[10px] text-zinc-400">PTS</span>
                           </div>
                        ) : (
-                         <span className="text-xs font-bold text-zinc-500">{String((driver as any)[col.key] ?? '-')}</span>
+                         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">{String((driver as any)[col.key] ?? '-')}</span>
                        )
                     )}
                   </td>
@@ -260,14 +269,14 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
         </table>
       </div>
       
-      <div className="px-6 py-4 border-t border-zinc-100 bg-zinc-50/30 flex items-center justify-between">
+      <div className="px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/30 flex items-center justify-between">
         <p className="text-xs text-zinc-500 font-medium">
             当前显示 {startIndex + 1} - {Math.min(startIndex + itemsPerPage, sortedDrivers.length)} 条，共 {sortedDrivers.length} 条记录
         </p>
         <div className="flex gap-2 items-center">
           <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest mr-2">分页</span>
           <button 
-            className="px-2 py-1 rounded hover:bg-zinc-200 transition-all text-zinc-600 disabled:opacity-50"
+            className="px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all text-zinc-600 dark:text-zinc-400 disabled:opacity-50"
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
           >
@@ -275,12 +284,12 @@ const DriverTable: React.FC<DriverTableProps> = ({ drivers, columns, onOpenImpor
           </button>
           <div className="flex gap-1">
              {/* Simple Pagination: Show current page and total */}
-             <span className="text-xs font-bold text-zinc-700 self-center">
+             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 self-center">
                  {currentPage} / {totalPages || 1}
              </span>
           </div>
           <button 
-            className="px-2 py-1 rounded hover:bg-zinc-200 transition-all text-zinc-600 disabled:opacity-50"
+            className="px-2 py-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all text-zinc-600 dark:text-zinc-400 disabled:opacity-50"
             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages || totalPages === 0}
           >

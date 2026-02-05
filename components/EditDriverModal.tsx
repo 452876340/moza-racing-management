@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Driver } from '../types';
+import { useUI } from '../context/UIContext';
 
 interface EditDriverModalProps {
   driver: Driver;
@@ -9,6 +9,7 @@ interface EditDriverModalProps {
 }
 
 const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSave }) => {
+  const { showToast } = useUI();
   // We need to manage state for all fields. 
   // Since we have a mix of standard fields and dynamic 'rawData', we'll flatten them for the form.
   const [formData, setFormData] = useState<Record<string, any>>({});
@@ -57,10 +58,11 @@ const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSa
         };
 
         await onSave(updatedDriver);
+        showToast('保存成功', 'success');
         onClose();
     } catch (err) {
         console.error(err);
-        alert('保存失败');
+        showToast('保存失败', 'error');
     } finally {
         setLoading(false);
     }
@@ -80,10 +82,10 @@ const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSa
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between border-b border-zinc-200 p-6 bg-white">
-          <h2 className="text-zinc-900 text-xl font-bold">修改车手信息</h2>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 transition-colors">
+      <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-zinc-200 dark:border-zinc-800">
+        <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 p-6 bg-white dark:bg-zinc-900">
+          <h2 className="text-zinc-900 dark:text-white text-xl font-bold">修改车手信息</h2>
+          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
@@ -91,21 +93,21 @@ const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSa
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
             {sortedKeys.map(key => (
                 <div key={key} className="flex flex-col gap-1">
-                    <label className="text-xs font-bold text-zinc-500 uppercase">{key}</label>
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">{key}</label>
                     <input 
                         type="text" 
                         value={formData[key] || ''}
                         onChange={(e) => handleChange(key, e.target.value)}
-                        className="w-full px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue/50 text-sm"
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue/50 text-sm bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
                     />
                 </div>
             ))}
         </form>
 
-        <div className="p-6 border-t border-zinc-100 bg-zinc-50 flex justify-end gap-3">
+        <div className="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex justify-end gap-3">
             <button 
                 onClick={onClose}
-                className="px-4 py-2 text-zinc-600 hover:bg-zinc-200 rounded-lg text-sm font-bold transition-colors"
+                className="px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg text-sm font-bold transition-colors"
                 type="button"
             >
                 取消
@@ -113,7 +115,7 @@ const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSa
             <button 
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-4 py-2 bg-zinc-900 text-white hover:bg-zinc-800 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-zinc-900/10 disabled:opacity-50"
+                className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-zinc-900/10 disabled:opacity-50"
             >
                 {loading ? '保存中...' : '保存修改'}
             </button>
