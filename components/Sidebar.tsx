@@ -23,12 +23,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   onSelectRound
 }) => {
   // Store collapsed state. By default (empty set), all are expanded? 
-  // Or should we assume all expanded unless in set?
-  // Let's track COLLAPSED items. If ID is in set, it's collapsed.
-  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
+  // Changed: By default, we want them collapsed. 
+  // Let's invert the logic or initialize with all IDs if we want them expanded, 
+  // OR use a "expandedIds" set instead.
+  // Using "collapsedIds" (if has ID -> collapsed).
+  // To make them collapsed by default, we need to populate this set with all IDs initially?
+  // Better: Use `expandedIds`. If has ID -> expanded. Default empty -> all collapsed.
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const toggleCollapse = (id: string) => {
-    setCollapsedIds(prev => {
+    setExpandedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -57,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             
             <div className="flex flex-col gap-4 mt-4">
               {tournaments.map((t) => {
-                const isCollapsed = collapsedIds.has(t.id);
+                const isExpanded = expandedIds.has(t.id);
                 return (
                   <div key={t.id} className="group/tournament">
                     <div 
@@ -65,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         onClick={() => toggleCollapse(t.id)}
                     >
                       <div className="flex items-center gap-2 overflow-hidden">
-                        <span className={`material-symbols-outlined text-[18px] text-zinc-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`}>expand_more</span>
+                        <span className={`material-symbols-outlined text-[18px] text-zinc-400 transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}>expand_more</span>
                         <p className="text-sm font-bold truncate select-none">{t.name}</p>
                       </div>
                       <div className="flex items-center opacity-0 group-hover/tournament:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
@@ -78,7 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                     </div>
 
-                    <div className={`ml-6 flex flex-col gap-1 border-l-2 border-zinc-100 dark:border-zinc-800 pl-3 overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}>
+                    <div className={`ml-6 flex flex-col gap-1 border-l-2 border-zinc-100 dark:border-zinc-800 pl-3 overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                       {t.rounds.map((r) => (
                         <div 
                           key={r.id} 

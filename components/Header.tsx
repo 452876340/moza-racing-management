@@ -6,9 +6,10 @@ import ChangePasswordModal from './ChangePasswordModal';
 interface HeaderProps {
   onLogout: () => void;
   onShowLogs: () => void;
+  onGoHome: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onLogout, onShowLogs }) => {
+const Header: React.FC<HeaderProps> = ({ onLogout, onShowLogs, onGoHome }) => {
   const { theme, toggleTheme } = useTheme();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -23,6 +24,13 @@ const Header: React.FC<HeaderProps> = ({ onLogout, onShowLogs }) => {
         </div>
         <div className="flex items-center gap-6">
           <div className="flex gap-2">
+            <button 
+              className="flex items-center justify-center rounded-lg w-10 h-10 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+              onClick={onGoHome}
+              title="仪表盘"
+            >
+              <span className="material-symbols-outlined text-[20px]">dashboard</span>
+            </button>
             <button 
               className="flex items-center justify-center rounded-lg w-10 h-10 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
               onClick={toggleTheme}
