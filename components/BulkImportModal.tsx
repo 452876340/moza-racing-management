@@ -33,7 +33,7 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, tou
     if (tournamentName) {
          if (tournamentName.includes('株洲')) {
              fileName = '株洲速度节.xlsx';
-             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYo3MSp6gM.xlsx?f=%E6%A0%AA%E6%B4%B2%E9%80%9F%E5%BA%A6%E8%8A%82.xlsx&v=1770198967';
+             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgwp6VzAYokOSD1QU.xlsx?f=%E6%A0%AA%E6%B4%B2%E9%80%9F%E5%BA%A6%E8%8A%82.xlsx&v=1770344258';
          }
          else if (tournamentName.includes('飞驰')) {
              fileName = '飞驰拉力赛.xlsx';
