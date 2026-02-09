@@ -154,29 +154,37 @@ const Overview: React.FC<OverviewProps> = ({ tournaments, logs, refreshKey, onVi
   };
 
   // Fetch global last update time independently of filters
-  useEffect(() => {
-    const fetchLastUpdate = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('rankings')
-          .select('created_at')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-        
-        if (data) {
-          setLastUpdateTime(new Date(data.created_at).toLocaleString('zh-CN', { 
-            year: 'numeric', month: '2-digit', day: '2-digit', 
-            hour: '2-digit', minute: '2-digit', second: '2-digit' 
-          }));
-        }
-      } catch (e) {
-        console.error('Error fetching last update:', e);
-      }
-    };
-    
-    fetchLastUpdate();
-  }, [refreshKey, logs]); // Refresh when logs change (implies data update)
+   useEffect(() => {
+     const fetchLastUpdate = async () => {
+       try {
+         // Start with the latest log time if available (captures edits, deletes, etc.)
+         let maxTime = (logs && logs.length > 0) ? logs[0].created_at : '';
+
+         const { data, error } = await supabase
+           .from('rankings')
+           .select('created_at')
+           .order('created_at', { ascending: false })
+           .limit(1)
+           .single();
+         
+         // If we have ranking data newer than the latest log (e.g. legacy import), use that
+         if (data && (!maxTime || data.created_at > maxTime)) {
+           maxTime = data.created_at;
+         }
+
+         if (maxTime) {
+           setLastUpdateTime(new Date(maxTime).toLocaleString('zh-CN', { 
+             year: 'numeric', month: '2-digit', day: '2-digit', 
+             hour: '2-digit', minute: '2-digit', second: '2-digit' 
+           }));
+         }
+       } catch (e) {
+         console.error('Error fetching last update:', e);
+       }
+     };
+     
+     fetchLastUpdate();
+   }, [refreshKey, logs]); // Refresh when logs change (implies data update)
 
   const StatCard = ({ title, value, subtext, icon, color, loading }: any) => (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between h-40">
