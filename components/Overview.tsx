@@ -57,7 +57,7 @@ const Overview: React.FC<OverviewProps> = ({ tournaments, logs, refreshKey, onVi
              setTotalDrivers(0);
              setNewDriversCount(0);
              setOldDriversCount(0);
-             setLastUpdateTime('-');
+             // setLastUpdateTime('-');
              setDriverTrend(0);
              setIsLoading(false);
              return;
@@ -72,18 +72,11 @@ const Overview: React.FC<OverviewProps> = ({ tournaments, logs, refreshKey, onVi
         setTotalDrivers(0);
         setNewDriversCount(0);
         setOldDriversCount(0);
-        setLastUpdateTime('-');
+        // setLastUpdateTime('-'); // Global update time should persist
         setDriverTrend(0);
         setIsLoading(false);
         return;
       }
-
-      // Last Update Time
-      const lastUpdate = rankings.reduce((max, r) => r.created_at > max ? r.created_at : max, rankings[0].created_at);
-      setLastUpdateTime(new Date(lastUpdate).toLocaleString('zh-CN', { 
-        year: 'numeric', month: '2-digit', day: '2-digit', 
-        hour: '2-digit', minute: '2-digit', second: '2-digit' 
-      }));
 
       // Calculate New vs Old Logic
       // "New" = Drivers who appeared ONLY in the LATEST round (of the selection).
@@ -160,6 +153,31 @@ const Overview: React.FC<OverviewProps> = ({ tournaments, logs, refreshKey, onVi
     }
   };
 
+  // Fetch global last update time independently of filters
+  useEffect(() => {
+    const fetchLastUpdate = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('rankings')
+          .select('created_at')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (data) {
+          setLastUpdateTime(new Date(data.created_at).toLocaleString('zh-CN', { 
+            year: 'numeric', month: '2-digit', day: '2-digit', 
+            hour: '2-digit', minute: '2-digit', second: '2-digit' 
+          }));
+        }
+      } catch (e) {
+        console.error('Error fetching last update:', e);
+      }
+    };
+    
+    fetchLastUpdate();
+  }, [refreshKey, logs]); // Refresh when logs change (implies data update)
+
   const StatCard = ({ title, value, subtext, icon, color, loading }: any) => (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between h-40">
       <div className="flex justify-between items-start">
@@ -234,7 +252,7 @@ const Overview: React.FC<OverviewProps> = ({ tournaments, logs, refreshKey, onVi
                     <span className="material-symbols-outlined">more_horiz</span>
                 </button>
                 {/* Dropdown Menu */}
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-10 hidden group-hover/menu:block hover:block p-1">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-10 hidden group-hover/menu:block hover:block p-1 before:block before:absolute before:-top-2 before:left-0 before:w-full before:h-2 before:bg-transparent">
                     <div className="text-xs font-bold text-zinc-400 px-3 py-2 uppercase tracking-wider">选择赛事范围</div>
                     <button 
                         onClick={() => setSelectedTournamentId('all')}
