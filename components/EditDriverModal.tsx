@@ -1,32 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { Driver } from '../types';
+import { Driver, TableColumn } from '../types';
 import { useUI } from '../context/UIContext';
 
 interface EditDriverModalProps {
   driver: Driver;
+  columns: TableColumn[];
   onClose: () => void;
   onSave: (updatedDriver: Driver) => void;
 }
 
-const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSave }) => {
+const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, columns, onClose, onSave }) => {
   const { showToast } = useUI();
-  // We need to manage state for all fields. 
-  // Since we have a mix of standard fields and dynamic 'rawData', we'll flatten them for the form.
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
 
+  // Get the valid column keys from the columns prop
+  const validColumnKeys = React.useMemo(() => {
+    return new Set(columns.map(col => col.key));
+  }, [columns]);
+
   useEffect(() => {
-    // Initialize form data from driver
-    const initialData: Record<string, any> = { ...driver.rawData }; // Start with dynamic fields
+    // Initialize form data from driver, but only include fields that are in the columns
+    const initialData: Record<string, any> = {};
     
-    // Add standard fields if they are not in rawData (or override if they are essentially the same)
-    // Actually, 'rank' and 'points' are often in rawData too, but we should prioritize standard fields for the ID
-    if (!initialData['rank']) initialData['rank'] = driver.rank;
-    if (!initialData['points']) initialData['points'] = driver.points;
+    // Add fields that are in the valid column keys
+    if (driver.rawData) {
+      Object.keys(driver.rawData).forEach(key => {
+        if (validColumnKeys.has(key)) {
+          initialData[key] = driver.rawData[key];
+        }
+      });
+    }
     
-    // Ensure we have at least the keys we want to edit.
+    // Also add standard fields if they exist in columns
+    if (validColumnKeys.has('rank')) initialData['rank'] = driver.rank;
+    if (validColumnKeys.has('points')) initialData['points'] = driver.points;
+    if (validColumnKeys.has('name')) initialData['name'] = driver.name;
+    if (validColumnKeys.has('team')) initialData['team'] = driver.team;
+    if (validColumnKeys.has('car')) initialData['car'] = driver.car;
+    if (validColumnKeys.has('bestLap')) initialData['bestLap'] = driver.bestLap;
+    
     setFormData(initialData);
-  }, [driver]);
+  }, [driver, validColumnKeys]);
 
   const handleChange = (key: string, value: string) => {
     setFormData(prev => ({
@@ -68,8 +83,10 @@ const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSa
     }
   };
 
-  // Determine which keys to show. We sort them to put Rank/Points/Name first.
-  const sortedKeys = Object.keys(formData).sort((a, b) => {
+  // Filter keys to only include those in the columns, then sort them
+  const sortedKeys = Object.keys(formData)
+    .filter(key => validColumnKeys.has(key))
+    .sort((a, b) => {
       const priority = ['rank', '排名', 'name', '姓名', '车手', 'points', '积分'];
       const idxA = priority.findIndex(p => a.toLowerCase().includes(p));
       const idxB = priority.findIndex(p => b.toLowerCase().includes(p));
@@ -96,7 +113,7 @@ const EditDriverModal: React.FC<EditDriverModalProps> = ({ driver, onClose, onSa
                     <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">{key}</label>
                     <input 
                         type="text" 
-                        value={formData[key] || ''}
+                        value={formData[key] !== undefined ? formData[key] : ''}
                         onChange={(e) => handleChange(key, e.target.value)}
                         className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue/50 text-sm bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
                     />

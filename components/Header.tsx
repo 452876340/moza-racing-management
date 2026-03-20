@@ -33,7 +33,14 @@ const Header: React.FC<HeaderProps> = ({ onLogout, onShowLogs, onGoHome }) => {
             </button>
             <button 
               className="flex items-center justify-center rounded-lg w-10 h-10 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-              onClick={toggleTheme}
+              onClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
+                toggleTheme({
+                  x: rect.left + rect.width / 2,
+                  y: rect.top + rect.height / 2,
+                  radius: Math.max(rect.width, rect.height) / 2,
+                });
+              }}
               title={theme === 'light' ? '切换到深色模式' : '切换到浅色模式'}
             >
               <span className="material-symbols-outlined text-[20px]">

@@ -27,24 +27,24 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, tou
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getTemplateUrl = () => {
-    let fileName = '月度锦标赛.xlsx';
+    let fileName = 'MOZA 2026 月度锦标赛.xlsx';
     let url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYopLnW_gI.xlsx?f=%E6%9C%88%E5%BA%A6%E9%94%A6%E6%A0%87%E8%B5%9B.xlsx&v=1770198967';
 
     if (tournamentName) {
-         if (tournamentName.includes('株洲')) {
-             fileName = '株洲速度节.xlsx';
+         if (tournamentName.includes('CTCC')) {
+             fileName = 'MOZA&CTCC模拟赛车公开赛.xlsx';
              url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgwp6VzAYokOSD1QU.xlsx?f=%E6%A0%AA%E6%B4%B2%E9%80%9F%E5%BA%A6%E8%8A%82.xlsx&v=1770344258';
          }
          else if (tournamentName.includes('飞驰')) {
-             fileName = '飞驰拉力赛.xlsx';
+             fileName = '飞驰吧！MOZA 拉力赛.xlsx';
              url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgtq_MzAYokI_lkwQ.xlsx?f=%E9%A3%9E%E9%A9%B0%E6%8B%89%E5%8A%9B%E8%B5%9B.xlsx&v=1770198967';
          }
-         else if (tournamentName.toLowerCase().includes('iracing')) {
-             fileName = 'iRacing League.xlsx';
-             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYo3-z1ggI.xlsx?f=iRacing+League.xlsx&v=1770198967';
+         else if (tournamentName.toLowerCase().includes('iRacing')) {
+             fileName = 'MOZA 2026 iRacing 联赛.xlsx';
+             url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYopLnW_gI.xlsx?f=%E6%9C%88%E5%BA%A6%E9%94%A6%E6%A0%87%E8%B5%9B.xlsx&v=1770198967';
          }
          else if (tournamentName.includes('月度')) {
-             fileName = '月度锦标赛.xlsx';
+             fileName = 'MOZA 2026 月度锦标赛.xlsx';
              url = 'https://download.s21i.faimallusr.com/29673492/0/1/ABUIABA-GAAgt6_MzAYopLnW_gI.xlsx?f=%E6%9C%88%E5%BA%A6%E9%94%A6%E6%A0%87%E8%B5%9B.xlsx&v=1770198967';
          }
     }
@@ -262,7 +262,7 @@ const BulkImportModal: React.FC<BulkImportModalProps> = ({ onClose, roundId, tou
                       className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors shadow-sm"
                   >
                       <span className="material-symbols-outlined text-[18px]">download</span>
-                      下载模板 ({getTemplateUrl().name})
+                      下载模板
                   </a>
               </div>
             </>

@@ -61,6 +61,36 @@
         .dark ::-webkit-scrollbar-thumb:hover {
             background: #52525b; /* zinc-600 */
         }
+
+        ::view-transition-group(root),
+        ::view-transition-image-pair(root),
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation: none;
+            mix-blend-mode: normal;
+        }
+
+        html.theme-transition-expand::view-transition-old(root) {
+            z-index: 1;
+        }
+
+        html.theme-transition-expand::view-transition-new(root) {
+            z-index: 2;
+        }
+
+        html.theme-transition-contract::view-transition-old(root) {
+            z-index: 2;
+        }
+
+        html.theme-transition-contract::view-transition-new(root) {
+            z-index: 1;
+        }
+
+        .theme-transitioning *,
+        .theme-transitioning *::before,
+        .theme-transitioning *::after {
+            transition: none !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-900">

@@ -537,6 +537,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       {editingDriver && (
         <EditDriverModal 
             driver={editingDriver}
+            columns={columns}
             onClose={() => setEditingDriver(null)}
             onSave={handleUpdateDriver}
         />
